@@ -99,14 +99,14 @@ async function consultarRucSunat(ruc) {
     return { error: 'conexion' };
   }
 
-  if (!data || (!data.numeroDocumento && !data.ruc && !data.razonSocial && !data.nombre)) {
+    if (!data || (!data.numero_documento && !data.numeroDocumento && !data.ruc && !data.razon_social && !data.razonSocial && !data.nombre)) {
     return null;
   }
 
-  return {
-    ruc: data.numeroDocumento || data.ruc || ruc,
-    razonSocial: data.razonSocial || data.nombre || '',
-    direccion: data.direccion || '',
+    return {
+    ruc: data.numero_documento || data.numeroDocumento || data.ruc || ruc,
+    razonSocial: data.razon_social || data.razonSocial || data.nombre || '',
+    direccion: data.direccion || data.direccion_completa || '',
     estado: data.estado || '',
     condicion: data.condicion || ''
   };

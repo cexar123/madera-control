@@ -30,8 +30,8 @@ El sistema está dividido en tres módulos principales, todos desarrollados al 5
 | Cesar | parte-1-cesar | Base del proyecto, schema de base de datos y configuración |
 | Yarkoff | parte-2-yarkoff | Autenticación JWT, middlewares y estructura de capas |
 | Bruno | parte-3-bruno | Módulo Transaccional: inventario y productos |
-| Miembro 4 | parte-4-miembro4 | Módulo Ventas, BI (reportes) y Microservicio IA |
-| Miembro 5 | parte-5-miembro5 | Frontend completo con los 3 módulos al 50% |
+| William | parte-4-miembro4 | Módulo Ventas, BI (reportes) y Microservicio IA |
+| Luis | parte-5-miembro5 | Frontend completo con los 3 módulos al 50% |
 
 ## Correr el proyecto localmente
 
@@ -57,7 +57,7 @@ El backend queda disponible en `http://localhost:3001`.
 
 ### 3. Frontend y microservicio IA
 
-Consulta los `README` de `parte-5-miembro5/frontend` y `parte-4-miembro4/microservicio-ia`.
+Consulta los `README` de `parte-5-Luis/frontend` y `parte-4-William/microservicio-ia`.
 
 ## Repositorio
 

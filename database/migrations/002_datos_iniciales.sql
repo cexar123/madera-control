@@ -11,7 +11,7 @@
 -- contador@maderacontrol.com  / contador123
 -- =====================================================
 INSERT INTO usuarios (nombre, email, password_hash, rol) VALUES
-('Cesar Diaz Mendoza', 'gerente@maderacontrol.com',
+('Willan Verde Loyola', 'gerente@maderacontrol.com',
     '$2b$10$IC.dlE5/nFoAm0mWoMEDY.psaSGVdW4p2FXaUw5ohblSL9AgWB7BS', 'gerente'),
 ('Diana Ramirez Vega', 'vendedor@maderacontrol.com',
     '$2b$10$r3Wn.lFDWFmyhbtaA/mw6OA06ufrLhl2cyMjMLKE36vEH/THTbbne', 'vendedor'),

@@ -64,13 +64,5 @@ Consulta los `README` de `parte-5-luis/frontend` y `parte-4-william/microservici
 Repo oficial del proyecto (se actualizará al momento de crear el repo en GitHub):
 
 ```
-https://github.com/USUARIO/madera-control
+https://github.com/cexar123/madera-control
 ```
-
-## Credenciales de prueba
-
-| Rol | Email | Contraseña |
-|-----|-------|------------|
-| Gerente | gerente@maderacontrol.com | admin123 |
-| Vendedor | vendedor@maderacontrol.com | vendedor123 |
-| Contador | contador@maderacontrol.com | contador123 |

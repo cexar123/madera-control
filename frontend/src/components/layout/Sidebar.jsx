@@ -1,5 +1,5 @@
 // Autor: Miembro 5
-// MaderaControl v1.0 - Barra lateral de navegacion
+// MaderaControl v2.0 - Barra lateral de navegacion
 
 import { NavLink } from 'react-router-dom';
 
@@ -11,7 +11,8 @@ const SECCIONES = [
     rolesPermitidos: ['gerente', 'vendedor', 'contador'],
     items: [
       { ruta: '/ventas/nueva', label: 'Nueva Venta', roles: ['gerente', 'vendedor'] },
-      { ruta: '/ventas',       label: 'Historial de Ventas', roles: ['gerente', 'vendedor', 'contador'] }
+      { ruta: '/ventas',       label: 'Historial de Ventas', roles: ['gerente', 'vendedor', 'contador'] },
+      { ruta: '/ventas/recojos', label: 'Programacion de Recojo', roles: ['gerente', 'vendedor'] }
     ]
   },
   {
@@ -19,7 +20,8 @@ const SECCIONES = [
     rolesPermitidos: ['gerente', 'vendedor', 'contador'],
     items: [
       { ruta: '/inventario',              label: 'Productos',  roles: ['gerente', 'vendedor', 'contador'] },
-      { ruta: '/inventario/movimientos',  label: 'Movimientos', roles: ['gerente', 'vendedor', 'contador'] }
+      { ruta: '/inventario/movimientos',  label: 'Movimientos', roles: ['gerente', 'vendedor', 'contador'] },
+      { ruta: '/inventario/descuentos',   label: 'Descuentos por Volumen', roles: ['gerente'] }
     ]
   },
   {
@@ -47,7 +49,7 @@ export default function Sidebar() {
     <aside className="w-60 min-h-screen bg-primary text-white flex flex-col">
       <div className="p-5 border-b border-white/10">
         <div className="text-xl font-bold tracking-wide">MaderaControl</div>
-        <div className="text-xs text-white/60">v1.0</div>
+        <div className="text-xs text-white/60">v2.0</div>
       </div>
 
       <nav className="flex-1 overflow-y-auto py-4">

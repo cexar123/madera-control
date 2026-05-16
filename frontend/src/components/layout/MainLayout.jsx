@@ -1,5 +1,5 @@
 // Autor: Miembro 5
-// MaderaControl v1.0 - Layout principal: sidebar + topbar + contenido
+// MaderaControl v2.0 - Layout principal: sidebar + topbar + contenido
 
 import { Outlet, useLocation } from 'react-router-dom';
 
@@ -9,8 +9,10 @@ import Topbar from './Topbar.jsx';
 const TITULOS = {
   '/ventas/nueva': 'Nueva Venta',
   '/ventas': 'Historial de Ventas',
+  '/ventas/recojos': 'Programacion de Recojo y Entregas',
   '/inventario': 'Productos',
   '/inventario/movimientos': 'Movimientos de Inventario',
+  '/inventario/descuentos': 'Descuentos por Volumen',
   '/clientes': 'Clientes',
   '/dashboard': 'Dashboard BI',
   '/prediccion': 'Prediccion de Stock (IA)'

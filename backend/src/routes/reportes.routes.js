@@ -1,5 +1,5 @@
 // Autor: Miembro 4
-// MaderaControl v1.0 - Rutas del modulo BI (reportes)
+// MaderaControl v2.0 - Rutas del modulo BI
 
 const express = require('express');
 
@@ -8,14 +8,14 @@ const { verifyToken } = require('../middlewares/auth.middleware');
 const { requireRole } = require('../middlewares/roles.middleware');
 
 const router = express.Router();
-
 router.use(verifyToken);
 router.use(requireRole('gerente', 'contador'));
 
-router.get('/ventas-por-periodo',     reportesController.ventasPorPeriodo);
+router.get('/ventas-por-periodo', reportesController.ventasPorPeriodo);
 router.get('/productos-mas-vendidos', reportesController.productosMasVendidos);
-router.get('/ingresos-totales',       reportesController.ingresosTotales);
+router.get('/ingresos-totales', reportesController.ingresosTotales);
 router.get('/ventas-por-tipo-madera', reportesController.ventasPorTipoMadera);
-router.get('/resumen-dashboard',      reportesController.resumenDashboard);
+router.get('/ventas-por-forma-pago', reportesController.ventasPorFormaPago);
+router.get('/resumen-dashboard', reportesController.resumenDashboard);
 
 module.exports = router;

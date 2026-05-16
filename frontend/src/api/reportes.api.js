@@ -14,6 +14,8 @@ export const reportesApi = {
     }).then(r => r.data),
   getVentasPorTipoMadera: () =>
     api.get('/api/reportes/ventas-por-tipo-madera').then(r => r.data),
+  getVentasPorFormaPago: () =>
+    api.get('/api/reportes/ventas-por-forma-pago').then(r => r.data),
   getResumenDashboard: () =>
     api.get('/api/reportes/resumen-dashboard').then(r => r.data)
 };

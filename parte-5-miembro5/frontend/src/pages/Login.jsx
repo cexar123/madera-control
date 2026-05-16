@@ -90,13 +90,6 @@ export default function Login() {
             Iniciar sesion
           </Button>
         </form>
-
-        <div className="mt-6 text-xs text-gray-500 border-t pt-4">
-          <div className="font-semibold mb-1">Usuarios de prueba:</div>
-          <div>gerente@maderacontrol.com / admin123</div>
-          <div>vendedor@maderacontrol.com / vendedor123</div>
-          <div>contador@maderacontrol.com / contador123</div>
-        </div>
       </div>
     </div>
   );

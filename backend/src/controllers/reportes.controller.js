@@ -1,5 +1,5 @@
 // Autor: Miembro 4
-// MaderaControl v1.0 - Logica del modulo BI (Business Intelligence)
+// MaderaControl v2.0 - Logica del modulo BI
 
 const reportesService = require('../services/reportes.service');
 
@@ -7,9 +7,7 @@ async function ventasPorPeriodo(req, res, next) {
   try {
     const periodo = req.query.periodo || 'dia';
     if (!['dia', 'semana', 'mes'].includes(periodo)) {
-      const err = new Error("periodo debe ser 'dia', 'semana' o 'mes'");
-      err.status = 400;
-      return next(err);
+      const err = new Error("periodo debe ser 'dia', 'semana' o 'mes'"); err.status = 400; return next(err);
     }
     const datos = await reportesService.getVentasPorPeriodo(periodo);
     return res.json({ periodo, datos });
@@ -27,23 +25,23 @@ async function productosMasVendidos(req, res, next) {
 async function ingresosTotales(req, res, next) {
   try {
     const { fecha_inicio, fecha_fin } = req.query;
-    const datos = await reportesService.getIngresosTotales(fecha_inicio, fecha_fin);
-    return res.json(datos);
+    return res.json(await reportesService.getIngresosTotales(fecha_inicio, fecha_fin));
   } catch (e) { return next(e); }
 }
 
 async function ventasPorTipoMadera(req, res, next) {
-  try {
-    const datos = await reportesService.getVentasPorTipoMadera();
-    return res.json(datos);
-  } catch (e) { return next(e); }
+  try { return res.json(await reportesService.getVentasPorTipoMadera()); }
+  catch (e) { return next(e); }
+}
+
+async function ventasPorFormaPago(req, res, next) {
+  try { return res.json(await reportesService.getVentasPorFormaPago()); }
+  catch (e) { return next(e); }
 }
 
 async function resumenDashboard(req, res, next) {
-  try {
-    const resumen = await reportesService.getResumenDashboard();
-    return res.json(resumen);
-  } catch (e) { return next(e); }
+  try { return res.json(await reportesService.getResumenDashboard()); }
+  catch (e) { return next(e); }
 }
 
 module.exports = {
@@ -51,5 +49,6 @@ module.exports = {
   productosMasVendidos,
   ingresosTotales,
   ventasPorTipoMadera,
+  ventasPorFormaPago,
   resumenDashboard
 };

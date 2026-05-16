@@ -86,12 +86,11 @@ export default function Login() {
 
           {error && <Alert tipo="error">{error}</Alert>}
 
-        <Button type="submit" loading={loading} className="w-full">
-          Iniciar sesion
-        </Button>
-      </form>
+          <Button type="submit" loading={loading} className="w-full">
+            Iniciar sesion
+          </Button>
+        </form>
+      </div>
     </div>
-  </div>
-);
+  );
 }
-

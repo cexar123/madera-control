@@ -18,6 +18,7 @@ const inventarioRoutes = require('./routes/inventario.routes');
 const ventasRoutes = require('./routes/ventas.routes');
 const clientesRoutes = require('./routes/clientes.routes');
 const reportesRoutes = require('./routes/reportes.routes');
+const descuentosRoutes = require('./routes/descuentos.routes');
 
 const errorHandler = require('./middlewares/errorHandler');
 
@@ -54,6 +55,7 @@ app.use('/api/inventario', inventarioRoutes);
 app.use('/api/ventas', ventasRoutes);
 app.use('/api/clientes', clientesRoutes);
 app.use('/api/reportes', reportesRoutes);
+app.use('/api/descuentos', descuentosRoutes);
 
 app.use((req, res, next) => {
   const err = new Error(`Ruta no encontrada: ${req.method} ${req.originalUrl}`);

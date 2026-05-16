@@ -1,13 +1,13 @@
 # Autor: Miembro 4
-# MaderaControl v1.0 - Endpoints HTTP del microservicio IA
-# Consulta el backend Node.js para obtener stock y movimientos,
-# luego aplica el motor de prediccion y devuelve recomendaciones.
+# MaderaControl v2.0 - Endpoints HTTP del microservicio IA
+# Consulta el backend Node.js (reenviando el JWT del usuario)
+# y aplica el motor de prediccion para devolver recomendaciones.
 
 import os
-from typing import List
+from typing import List, Optional
 
 import httpx
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header
 
 from services.prediccion_service import construir_prediccion
 
@@ -17,12 +17,21 @@ BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:3001")
 HTTP_TIMEOUT = 10.0
 
 
-async def _fetch_resumen_stock() -> List[dict]:
-    """Llama al backend Node.js para traer el resumen de stock actual."""
+def _build_headers(authorization: Optional[str]) -> dict:
     headers = {"X-Service": "ia-microservice"}
+    if authorization:
+        headers["Authorization"] = authorization
+    return headers
+
+
+async def _fetch_resumen_stock(authorization: Optional[str]) -> List[dict]:
+    """Llama al backend Node.js para traer el resumen de stock actual."""
     try:
         async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
-            r = await client.get(f"{BACKEND_URL}/api/inventario/resumen", headers=headers)
+            r = await client.get(
+                f"{BACKEND_URL}/api/inventario/resumen",
+                headers=_build_headers(authorization)
+            )
             r.raise_for_status()
             return r.json()
     except httpx.HTTPError as e:
@@ -32,15 +41,14 @@ async def _fetch_resumen_stock() -> List[dict]:
         )
 
 
-async def _fetch_movimientos_producto(producto_id: int) -> List[dict]:
+async def _fetch_movimientos_producto(producto_id: int, authorization: Optional[str]) -> List[dict]:
     """Trae los movimientos de salida (ventas) de los ultimos 30 dias."""
-    headers = {"X-Service": "ia-microservice"}
     try:
         async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
             r = await client.get(
                 f"{BACKEND_URL}/api/inventario/movimientos",
                 params={"producto_id": producto_id, "tipo": "salida"},
-                headers=headers
+                headers=_build_headers(authorization)
             )
             r.raise_for_status()
             movimientos = r.json()
@@ -58,13 +66,13 @@ async def _fetch_movimientos_producto(producto_id: int) -> List[dict]:
 
 
 @router.get("/stock-critico")
-async def obtener_stock_critico():
+async def obtener_stock_critico(authorization: Optional[str] = Header(None)):
     """Lista todos los productos con su prediccion de stock."""
-    productos = await _fetch_resumen_stock()
+    productos = await _fetch_resumen_stock(authorization)
     predicciones = []
 
     for p in productos:
-        historial = await _fetch_movimientos_producto(p["id"])
+        historial = await _fetch_movimientos_producto(p["id"], authorization)
         prediccion = construir_prediccion(p, historial)
         predicciones.append(prediccion)
 
@@ -73,14 +81,14 @@ async def obtener_stock_critico():
 
 
 @router.get("/producto/{producto_id}")
-async def prediccion_producto(producto_id: int):
+async def prediccion_producto(producto_id: int, authorization: Optional[str] = Header(None)):
     """Prediccion detallada para un producto especifico, con proyeccion de 30 dias."""
-    productos = await _fetch_resumen_stock()
+    productos = await _fetch_resumen_stock(authorization)
     producto = next((p for p in productos if p["id"] == producto_id), None)
     if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
 
-    historial = await _fetch_movimientos_producto(producto_id)
+    historial = await _fetch_movimientos_producto(producto_id, authorization)
     prediccion = construir_prediccion(producto, historial)
 
     demanda_diaria = prediccion["demanda_diaria_promedio"]
@@ -100,13 +108,13 @@ async def prediccion_producto(producto_id: int):
 
 
 @router.get("/resumen")
-async def resumen_predicciones():
+async def resumen_predicciones(authorization: Optional[str] = Header(None)):
     """Cuenta cuantos productos hay en cada nivel de alerta."""
-    productos = await _fetch_resumen_stock()
+    productos = await _fetch_resumen_stock(authorization)
     predicciones = []
 
     for p in productos:
-        historial = await _fetch_movimientos_producto(p["id"])
+        historial = await _fetch_movimientos_producto(p["id"], authorization)
         predicciones.append(construir_prediccion(p, historial))
 
     criticos = [p for p in predicciones if p["nivel_alerta"] == "critico"]

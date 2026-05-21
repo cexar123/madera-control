@@ -1,5 +1,4 @@
-// Autor: Bruno
-// MaderaControl v1.0 - Capa de acceso a datos del inventario
+// Capa de acceso a datos del inventario
 // Maneja movimientos (entradas / salidas) y resumen de stock.
 
 const { pool, query } = require('../config/db');

@@ -1,5 +1,4 @@
-// Autor: Miembro 5
-// MaderaControl v1.0 - Endpoints de clientes
+// Endpoints de clientes
 
 import { api } from './axios';
 

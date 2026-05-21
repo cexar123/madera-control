@@ -1,5 +1,4 @@
-// Autor: Yarkoff
-// MaderaControl v1.0 - Capa de presentacion del modulo de autenticacion
+// Capa de presentacion del modulo de autenticacion
 // Solo define endpoints y delega en el controller.
 
 const express = require('express');

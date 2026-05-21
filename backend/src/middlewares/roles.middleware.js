@@ -1,5 +1,4 @@
-// Autor: Yarkoff
-// MaderaControl v1.0 - Middleware de control por roles
+// Middleware de control por roles
 // Uso: requireRole('gerente') o requireRole('gerente','contador').
 // Debe usarse SIEMPRE despues de verifyToken.
 

@@ -1,5 +1,4 @@
-// Autor: Miembro 5
-// MaderaControl v1.0 - Modal centrado con overlay
+// Modal centrado con overlay
 
 export default function Modal({ open, onClose, titulo, children, size = 'md' }) {
   if (!open) return null;

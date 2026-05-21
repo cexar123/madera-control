@@ -1,4 +1,3 @@
-// Autor: Miembro 5
 // MaderaControl v2.0 - Layout principal: sidebar + topbar + contenido
 
 import { Outlet, useLocation } from 'react-router-dom';

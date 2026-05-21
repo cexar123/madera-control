@@ -1,4 +1,3 @@
-// Autor: Miembro 5
 // MaderaControl v2.0 - Dashboard BI con KPIs, graficos y top productos
 
 import { useEffect, useState } from 'react';

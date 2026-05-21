@@ -1,4 +1,3 @@
-// Autor: Miembro 5
 // MaderaControl v2.0 - Barra lateral de navegacion
 
 import { NavLink } from 'react-router-dom';

@@ -1,5 +1,4 @@
-// Autor: Miembro 5
-// MaderaControl v1.0 - Pagina de listado y busqueda de clientes
+// Pagina de listado y busqueda de clientes
 
 import { useEffect, useState, useMemo } from 'react';
 

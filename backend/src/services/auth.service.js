@@ -1,5 +1,4 @@
-// Autor: Yarkoff
-// MaderaControl v1.0 - Capa de acceso a datos de autenticacion
+// Capa de acceso a datos de autenticacion
 // Aqui viven las queries SQL contra la tabla usuarios y la
 // generacion / validacion de credenciales (bcrypt + JWT).
 

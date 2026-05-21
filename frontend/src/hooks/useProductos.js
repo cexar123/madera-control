@@ -1,5 +1,4 @@
-// Autor: Miembro 5
-// MaderaControl v1.0 - Hook de listado de productos
+// Hook de listado de productos
 
 import { useEffect, useState, useCallback } from 'react';
 

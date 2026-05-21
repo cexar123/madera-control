@@ -1,5 +1,4 @@
-// Autor: Miembro 4
-// MaderaControl v1.0 - Logica del modulo de clientes
+// Logica del modulo de clientes
 
 const clientesService = require('../services/clientes.service');
 

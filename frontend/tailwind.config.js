@@ -1,5 +1,4 @@
-// Autor: Miembro 5
-// MaderaControl v1.0 - Configuracion de TailwindCSS
+// Configuracion de TailwindCSS
 
 export default {
   content: [

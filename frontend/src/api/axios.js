@@ -1,5 +1,4 @@
-// Autor: Miembro 5
-// MaderaControl v1.0 - Instancias de axios para backend Node y microservicio IA
+// Instancias de axios para backend Node y microservicio IA
 // Incluye interceptores que adjuntan el JWT automaticamente y
 // expulsan al usuario si la sesion expira (401).
 

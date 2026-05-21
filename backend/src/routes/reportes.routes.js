@@ -1,4 +1,3 @@
-// Autor: Miembro 4
 // MaderaControl v2.0 - Rutas del modulo BI
 
 const express = require('express');

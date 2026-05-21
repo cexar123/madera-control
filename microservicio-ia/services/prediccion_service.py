@@ -1,4 +1,3 @@
-# Autor: Miembro 4
 # MaderaControl v2.0 - Motor de prediccion al 100%
 # Algoritmos implementados:
 #   1) Serie de tiempo diaria construida a partir de los movimientos de salida

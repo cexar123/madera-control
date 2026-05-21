@@ -1,5 +1,4 @@
-# Autor: Miembro 4
-# MaderaControl v1.0 - Microservicio de Inteligencia Artificial
+# Microservicio de Inteligencia Artificial
 # Servicio FastAPI independiente que consulta al backend Node.js
 # para predecir cuando se quedara sin stock cada producto.
 

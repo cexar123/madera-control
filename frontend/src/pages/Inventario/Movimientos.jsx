@@ -1,5 +1,4 @@
-// Autor: Miembro 5
-// MaderaControl v1.0 - Pagina de movimientos de inventario
+// Pagina de movimientos de inventario
 
 import { useEffect, useState } from 'react';
 

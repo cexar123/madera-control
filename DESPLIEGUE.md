@@ -139,8 +139,19 @@ curl https://TU-IA.up.railway.app/health
 
 Frontend: abrir `https://TU-FRONTEND.vercel.app`, entrar con
 `gerente@maderacontrol.com / admin123`, revisar Dashboard, Nueva Venta,
-Programación de Recojo, Descuentos y Predicción IA. Checklist funcional
-detallada en [DESPLIEGUE_V2.md §Paso 3](DESPLIEGUE_V2.md).
+Programación de Recojo, Descuentos y Predicción IA.
+
+Checklist funcional detallada:
+1. Login como gerente → Dashboard con 5 KPIs (incluye "Recojos pendientes").
+2. Nueva Venta: agrega 60 unidades de Eucalipto 3m, verifica que aplique el
+   descuento -10%. Cambia a "Recojo programado" → aparecen los campos de fecha.
+3. Historial de Ventas: abre una venta → botón **Anular**. Motivo debe ser
+   >= 5 caracteres. Tras anular: badge rojo "Anulada" y auditoría visible.
+4. Programación de Recojo: marca una venta como "listo" → "entregado".
+5. Descuentos por Volumen (solo gerente): crea una regla nueva.
+6. Login como vendedor → puede anular, NO ve "Descuentos".
+7. Login como contador → ve Dashboard, NO ve Nueva Venta.
+8. Página "Predicción IA" → carga la tabla sin error 401.
 
 ---
 

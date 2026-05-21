@@ -20,7 +20,7 @@ microservicio IA) y Vercel (frontend).
 
 ### Subir el codigo inicial (lo hace Cesar)
 
-Abre Git Bash en la carpeta `parte-1-cesar/`:
+Abre Git Bash en la raíz del proyecto:
 
 ```bash
 git init

@@ -1,5 +1,4 @@
-// Autor: Yarkoff
-// MaderaControl v1.0 - Middleware de verificacion de JWT
+// Middleware de verificacion de JWT
 // Lee Authorization: Bearer <token>, valida con JWT_SECRET y
 // adjunta el payload decodificado a req.user.
 

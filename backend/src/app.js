@@ -1,5 +1,4 @@
-// Autor: Cesar
-// MaderaControl v1.0 - Punto de entrada del backend Express
+// Punto de entrada del backend Express
 // Arquitectura en 4 capas: presentacion (routes) -> logica (controllers)
 // -> acceso a datos (services) -> base de datos (PostgreSQL)
 

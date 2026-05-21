@@ -1,5 +1,4 @@
-// Autor: Miembro 5
-// MaderaControl v1.0 - Endpoints de productos e inventario
+// Endpoints de productos e inventario
 
 import { api } from './axios';
 

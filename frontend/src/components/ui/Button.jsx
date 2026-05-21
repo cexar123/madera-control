@@ -1,5 +1,4 @@
-// Autor: Miembro 5
-// MaderaControl v1.0 - Boton reutilizable con variantes
+// Boton reutilizable con variantes
 
 export default function Button({
   children,

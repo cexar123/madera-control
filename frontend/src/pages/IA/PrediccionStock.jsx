@@ -1,4 +1,3 @@
-// Autor: Miembro 5
 // MaderaControl v2.0 - Pagina de prediccion IA al 100%
 // Consume el microservicio FastAPI y muestra:
 //   - KPIs (criticos / bajos / normales / riesgo promedio / confianza promedio)

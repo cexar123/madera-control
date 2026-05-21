@@ -1,5 +1,4 @@
-// Autor: Yarkoff
-// MaderaControl v1.0 - Capa logica del modulo de autenticacion
+// Capa logica del modulo de autenticacion
 // Recibe la request, valida los datos, llama al service y arma la
 // respuesta. Nunca habla directamente con la base de datos.
 

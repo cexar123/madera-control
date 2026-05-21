@@ -1,5 +1,4 @@
-// Autor: Yarkoff
-// MaderaControl v1.0 - Manejador centralizado de errores
+// Manejador centralizado de errores
 // Cualquier next(err) cae aqui y se serializa con un formato uniforme.
 
 const STATUS_MESSAGES = {

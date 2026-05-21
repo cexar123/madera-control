@@ -1,5 +1,4 @@
-// Autor: Miembro 4
-// MaderaControl v1.0 - Rutas del modulo de clientes
+// Rutas del modulo de clientes
 
 const express = require('express');
 

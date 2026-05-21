@@ -1,5 +1,4 @@
-// Autor: Miembro 5
-// MaderaControl v1.0 - Endpoints de autenticacion
+// Endpoints de autenticacion
 
 import { api } from './axios';
 

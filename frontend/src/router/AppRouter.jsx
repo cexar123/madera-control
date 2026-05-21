@@ -1,4 +1,3 @@
-// Autor: Miembro 5
 // MaderaControl v2.0 - Definicion de rutas y proteccion por rol
 
 import { Routes, Route, Navigate } from 'react-router-dom';

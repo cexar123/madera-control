@@ -1,5 +1,4 @@
-// Autor: Miembro 5
-// MaderaControl v1.0 - Alerta visual reutilizable
+// Alerta visual reutilizable
 
 const styles = {
   info: 'bg-blue-50 border-blue-300 text-blue-800',

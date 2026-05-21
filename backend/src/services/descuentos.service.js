@@ -1,4 +1,3 @@
-// Autor: Miembro 4
 // MaderaControl v2.0 - Capa de acceso a datos de descuentos por volumen
 // Reglas:
 //  - El porcentaje debe estar entre 0 y 50.

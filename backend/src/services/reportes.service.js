@@ -1,4 +1,3 @@
-// Autor: Miembro 4
 // MaderaControl v2.0 - Capa de acceso a datos del modulo BI
 // Solo considera ventas con estado = 'confirmada'.
 

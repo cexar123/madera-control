@@ -1,4 +1,3 @@
-// Autor: Miembro 4
 // MaderaControl v2.0 - Logica del modulo de descuentos por volumen
 
 const descuentosService = require('../services/descuentos.service');

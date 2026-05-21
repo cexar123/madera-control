@@ -1,5 +1,4 @@
-// Autor: Bruno
-// MaderaControl v1.0 - Capa de acceso a datos del catalogo de productos
+// Capa de acceso a datos del catalogo de productos
 // Aqui viven las queries SQL contra la tabla productos.
 
 const { query } = require('../config/db');

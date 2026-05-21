@@ -1,4 +1,3 @@
-// Autor: Miembro 4
 // MaderaControl v2.0 - Capa de acceso a datos del modulo de ventas
 // Reglas implementadas:
 //  - Toda venta se registra dentro de una transaccion BEGIN/COMMIT/ROLLBACK

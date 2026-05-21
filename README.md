@@ -1,68 +1,150 @@
-# MaderaControl v1.0
+# MaderaControl
 
-Sistema web de gestión de ventas para la empresa maderera peruana **Inversiones y Transportes Cesar y Diana EIRL**.
+Sistema web de gestión de ventas para **Inversiones y Transportes Cesar y Diana EIRL**, empresa maderera peruana. Digitaliza el ciclo completo: ventas con emisión automática de comprobantes (boleta / factura / nota de venta), control de inventario en tiempo real, dashboard de Business Intelligence y un microservicio de IA que predice cuándo se agotará el stock de cada producto.
 
-## Descripción del proyecto
+## Arquitectura N-Tier
 
-MaderaControl v1.0 es una plataforma integral que digitaliza la operación comercial de una maderera: registro de ventas con generación automática de comprobantes (boleta, factura, nota de venta), control de inventario en tiempo real, panel de Business Intelligence con indicadores clave y un microservicio de Inteligencia Artificial que predice cuándo se quedará sin stock cada producto.
+El proyecto está organizado en **4 capas** + un microservicio independiente. La separación es estricta: cada capa solo conoce a la inmediatamente inferior. Detalle completo en [ARQUITECTURA.md](ARQUITECTURA.md).
 
-El sistema está dividido en tres módulos principales, todos desarrollados al 50% de avance para esta primera entrega:
+```
+┌─────────────────────────────────────────────────────────────┐
+│  CAPA 1 — Presentación        frontend/                     │
+│  React + Vite + Tailwind + React Router + Axios             │
+│  pages · components · hooks · context · router · api        │
+└────────────────────────┬────────────────────────────────────┘
+                         │ HTTPS + JWT
+┌────────────────────────▼────────────────────────────────────┐
+│  CAPA 2 — Lógica de negocio   backend/src/                  │
+│  Node.js + Express                                          │
+│  routes/  →  controllers/  →  middlewares/                  │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+┌────────────────────────▼────────────────────────────────────┐
+│  CAPA 3 — Acceso a datos      backend/src/services + config │
+│  services/ (SQL parametrizado, transacciones)               │
+│  config/db.js (pool pg, SSL automático en producción)       │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+┌────────────────────────▼────────────────────────────────────┐
+│  CAPA 4 — Datos               database/migrations/          │
+│  PostgreSQL  ·  7 tablas  ·  3 migraciones                  │
+└─────────────────────────────────────────────────────────────┘
 
-1. **Módulo Transaccional**: registro de ventas, gestión de inventario y generación de comprobantes.
-2. **Módulo Business Intelligence**: dashboard con KPIs, gráficos y reportes.
-3. **Módulo Inteligente (IA)**: microservicio en FastAPI que estima la demanda semanal y genera alertas de reabastecimiento.
+      ┌───────────────────────────────────────────────────┐
+      │  Microservicio independiente   microservicio-ia/  │
+      │  Python + FastAPI + NumPy (regresión lineal,      │
+      │  MA ponderada, predicción de stockout).           │
+      │  Consulta al backend por HTTP reenviando el JWT.  │
+      └───────────────────────────────────────────────────┘
+```
 
-## Stack tecnológico
+### Reglas que el código respeta
+
+1. Un **route** solo declara endpoints y aplica middlewares. Delega al controller.
+2. Un **controller** valida la request y orquesta. Nunca toca la base de datos.
+3. Un **service** es el único que ejecuta SQL y aplica reglas de negocio.
+4. El **frontend** nunca accede a la base; siempre vía REST.
+5. El **microservicio IA** nunca accede a la base; consulta al backend por HTTP.
+
+## Estructura del repositorio
+
+```
+madera-control/
+├── ARQUITECTURA.md           Doc maestro de las 4 capas
+├── DESPLIEGUE.md             Checklist de deploy a Railway + Vercel
+├── NOMBRES.md                Nombres oficiales (env vars, servicios, tablas)
+├── SETUP_EXTERNO.md          Setup de cuentas externas
+│
+├── backend/                  Capas 2 y 3
+│   └── src/
+│       ├── app.js
+│       ├── config/db.js
+│       ├── routes/           7 módulos: auth, productos, inventario,
+│       ├── controllers/         ventas, clientes, reportes, descuentos
+│       ├── services/
+│       └── middlewares/      verifyToken, requireRole, errorHandler
+│
+├── microservicio-ia/         Microservicio FastAPI
+│   ├── main.py
+│   ├── routers/  services/  models/
+│   ├── Procfile  railway.json
+│
+├── frontend/                 Capa 1 (React + Vite)
+│   └── src/
+│       ├── api/              clientes axios (interceptor JWT)
+│       ├── pages/            Login, Transaccional, Inventario, BI, IA, Clientes
+│       ├── components/       layout + ui reutilizable
+│       ├── context/  hooks/  router/
+│
+└── database/                 Capa 4 (PostgreSQL)
+    └── migrations/           001 → 002 → 003
+```
+
+## Stack
 
 | Capa | Tecnología |
 |------|------------|
 | Frontend | React 18 + Vite + TailwindCSS + Recharts + React Router |
 | Backend | Node.js + Express + PostgreSQL (pg) + JWT + bcrypt |
-| Microservicio IA | Python 3.12 + FastAPI + Uvicorn + NumPy + httpx |
-| Base de datos | PostgreSQL 15 (Railway) |
-| Despliegue | Railway (backend + BD + IA) y Vercel (frontend) |
-| Control de versiones | Git + GitHub |
+| Microservicio IA | Python 3.13 + FastAPI + Uvicorn + NumPy + httpx |
+| Base de datos | PostgreSQL 16 |
+| Despliegue | Railway (backend + IA + Postgres) · Vercel (frontend) |
 
-## Integrantes del equipo
+## Despliegue en producción
 
-| Integrante | Módulo asignado |
-|------------|-----------------|
-| Cesar | Base del proyecto, schema de base de datos y configuración |
-| Yarkoff | Autenticación JWT, middlewares y estructura de capas |
-| Bruno | Módulo Transaccional: inventario y productos |
-| William | Módulo Ventas, BI (reportes) y Microservicio IA |
-| Luis | Frontend completo con los 3 módulos |
+Sistema en aire en:
+
+- Frontend → https://madera-control.vercel.app
+- Backend → https://madera-control-production.up.railway.app
+- Microservicio IA → https://extraordinary-warmth-production-53ac.up.railway.app
+
+Guía paso a paso para reproducir el deploy en [DESPLIEGUE.md](DESPLIEGUE.md).
 
 ## Correr el proyecto localmente
 
-### 1. Base de datos
-
-Instala PostgreSQL, crea una base `maderacontrol` y ejecuta en orden:
+### 1. Base de datos (PostgreSQL local)
 
 ```bash
 psql -U postgres -d maderacontrol -f database/migrations/001_crear_tablas.sql
 psql -U postgres -d maderacontrol -f database/migrations/002_datos_iniciales.sql
+psql -U postgres -d maderacontrol -f database/migrations/003_v2_funcionalidades.sql
 ```
 
-### 2. Backend
+### 2. Backend (`http://localhost:3001`)
 
 ```bash
 cd backend
-cp .env.example .env   # edita los valores
+cp .env.example .env       # editar DATABASE_URL, JWT_SECRET
 npm install
 npm run dev
 ```
 
-El backend queda disponible en `http://localhost:3001`.
+### 3. Microservicio IA (`http://localhost:8000`)
 
-### 3. Frontend y microservicio IA
-
-Consulta los `README` de `parte-5-luis/frontend` y `parte-4-william/microservicio-ia`.
-
-## Repositorio
-
-Repo oficial del proyecto (se actualizará al momento de crear el repo en GitHub):
-
+```bash
+cd microservicio-ia
+cp .env.example .env       # editar BACKEND_URL
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
 ```
-https://github.com/cexar123/madera-control
+
+### 4. Frontend (`http://localhost:5173`)
+
+```bash
+cd frontend
+cp .env.example .env       # editar VITE_API_URL, VITE_IA_URL
+npm install
+npm run dev
 ```
+
+Login de prueba: `gerente@maderacontrol.com / admin123`.
+
+## Equipo
+
+| Integrante | Módulo |
+|------------|--------|
+| Cesar | Estructura base, schema de base de datos y configuración |
+| Yarkoff | Autenticación JWT, middlewares y arquitectura en capas |
+| Bruno | Inventario y productos |
+| William | Ventas, BI (reportes) y Microservicio IA |
+| Luis | Frontend completo (transaccional, BI, IA, clientes) |

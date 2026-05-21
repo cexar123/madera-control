@@ -1,5 +1,4 @@
-// Autor: Bruno
-// MaderaControl v1.0 - Logica del modulo de inventario
+// Logica del modulo de inventario
 // Lee filtros, valida y delega en el service.
 
 const inventarioService = require('../services/inventario.service');

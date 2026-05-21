@@ -1,4 +1,3 @@
-// Autor: Miembro 4
 // MaderaControl v2.0 - Rutas de descuentos por volumen
 
 const express = require('express');

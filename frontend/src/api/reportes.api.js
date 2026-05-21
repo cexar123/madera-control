@@ -1,5 +1,4 @@
-// Autor: Miembro 5
-// MaderaControl v1.0 - Endpoints del modulo BI
+// Endpoints del modulo BI
 
 import { api } from './axios';
 

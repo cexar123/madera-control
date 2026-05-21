@@ -1,4 +1,3 @@
-# Autor: Miembro 4
 # MaderaControl v2.0 - Endpoints HTTP del microservicio IA
 # Consulta el backend Node.js (reenviando el JWT del usuario)
 # y aplica el motor de prediccion para devolver:

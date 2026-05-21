@@ -1,5 +1,4 @@
-// Autor: Miembro 5
-// MaderaControl v1.0 - Barra superior
+// Barra superior
 
 import useAuth from '../../hooks/useAuth';
 

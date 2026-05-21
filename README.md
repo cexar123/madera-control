@@ -25,13 +25,13 @@ El sistema está dividido en tres módulos principales, todos desarrollados al 5
 
 ## Integrantes del equipo
 
-| Integrante | Parte | Módulo asignado |
-|------------|-------|-----------------|
-| Cesar | parte-1-cesar | Base del proyecto, schema de base de datos y configuración |
-| Yarkoff | parte-2-yarkoff | Autenticación JWT, middlewares y estructura de capas |
-| Bruno | parte-3-bruno | Módulo Transaccional: inventario y productos |
-| William | parte-4-william | Módulo Ventas, BI (reportes) y Microservicio IA |
-| Luis | parte-5-luis | Frontend completo con los 3 módulos al 50% |
+| Integrante | Módulo asignado |
+|------------|-----------------|
+| Cesar | Base del proyecto, schema de base de datos y configuración |
+| Yarkoff | Autenticación JWT, middlewares y estructura de capas |
+| Bruno | Módulo Transaccional: inventario y productos |
+| William | Módulo Ventas, BI (reportes) y Microservicio IA |
+| Luis | Frontend completo con los 3 módulos |
 
 ## Correr el proyecto localmente
 

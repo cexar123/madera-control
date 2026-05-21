@@ -1,4 +1,3 @@
-// Autor: Miembro 5
 // MaderaControl v2.0 - Endpoints del microservicio FastAPI (IA)
 
 import { iaApi } from './axios';

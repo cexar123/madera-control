@@ -1,5 +1,4 @@
-// Autor: Miembro 4
-// MaderaControl v1.0 - Capa de acceso a datos de clientes
+// Capa de acceso a datos de clientes
 
 const { query } = require('../config/db');
 

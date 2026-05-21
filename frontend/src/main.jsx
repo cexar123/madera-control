@@ -1,5 +1,4 @@
-// Autor: Miembro 5
-// MaderaControl v1.0 - Punto de entrada de la SPA
+// Punto de entrada de la SPA
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';

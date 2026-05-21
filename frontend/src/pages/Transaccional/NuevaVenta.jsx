@@ -1,4 +1,3 @@
-// Autor: Miembro 5
 // MaderaControl v2.0 - Pagina de registro de nueva venta
 // Cinco secciones: cliente -> productos -> carrito (con descuentos en vivo)
 // -> entrega (recojo/delivery) -> pago.

@@ -1,5 +1,4 @@
-// Autor: Bruno
-// MaderaControl v1.0 - Rutas de productos (capa presentacion)
+// Rutas de productos (capa presentacion)
 
 const express = require('express');
 

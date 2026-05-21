@@ -1,5 +1,4 @@
-// Autor: Miembro 5
-// MaderaControl v1.0 - Hook de autenticacion (re-exporta useAuthContext)
+// Hook de autenticacion (re-exporta useAuthContext)
 
 import { useAuthContext } from '../context/AuthContext';
 

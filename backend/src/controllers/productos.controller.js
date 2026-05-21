@@ -1,5 +1,4 @@
-// Autor: Bruno
-// MaderaControl v1.0 - Logica del modulo de productos
+// Logica del modulo de productos
 // El controller valida la request y delega en el service.
 
 const productosService = require('../services/productos.service');

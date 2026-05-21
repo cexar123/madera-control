@@ -1,5 +1,4 @@
-// Autor: Miembro 5
-// MaderaControl v1.0 - Pagina de listado de productos / inventario
+// Pagina de listado de productos / inventario
 
 import { useState } from 'react';
 

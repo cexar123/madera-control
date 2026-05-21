@@ -1,5 +1,4 @@
-// Autor: Miembro 5
-// MaderaControl v1.0 - Badge de estado
+// Badge de estado
 
 const styles = {
   ok: 'bg-green-100 text-green-800',

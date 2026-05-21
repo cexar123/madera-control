@@ -1,5 +1,4 @@
-// Autor: Cesar
-// MaderaControl v1.0 - Configuracion de conexion a PostgreSQL
+// Configuracion de conexion a PostgreSQL
 // Exporta un Pool de conexiones y una funcion query() que lo utiliza.
 // El pool tambien se exporta para permitir transacciones BEGIN/COMMIT/ROLLBACK.
 

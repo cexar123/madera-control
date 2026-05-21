@@ -1,4 +1,3 @@
-// Autor: Miembro 5
 // MaderaControl v2.0 - Tablero de recojos y entregas pendientes
 
 import { useEffect, useState } from 'react';

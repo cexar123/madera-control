@@ -1,4 +1,3 @@
-// Autor: Miembro 5
 // MaderaControl v2.0 - Gestion de descuentos por volumen (solo gerente)
 
 import { useEffect, useState } from 'react';

@@ -1,5 +1,4 @@
-# Autor: Miembro 4
-# MaderaControl v1.0 - Schemas Pydantic del microservicio IA
+# Schemas Pydantic del microservicio IA
 
 from typing import Optional, List, Literal
 from pydantic import BaseModel

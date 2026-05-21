@@ -1,5 +1,4 @@
-// Autor: Miembro 5
-// MaderaControl v1.0 - Contexto global de autenticacion
+// Contexto global de autenticacion
 
 import { createContext, useContext, useEffect, useState } from 'react';
 

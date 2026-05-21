@@ -1,5 +1,4 @@
-// Autor: Bruno
-// MaderaControl v1.0 - Rutas de inventario (capa presentacion)
+// Rutas de inventario (capa presentacion)
 
 const express = require('express');
 

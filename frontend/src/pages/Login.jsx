@@ -1,5 +1,4 @@
-// Autor: Miembro 5
-// MaderaControl v1.0 - Pagina de inicio de sesion
+// Pagina de inicio de sesion
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';

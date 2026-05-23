@@ -5,6 +5,7 @@ import { useState } from 'react';
 import useAuth from '../../hooks/useAuth';
 import useProductos from '../../hooks/useProductos';
 import { productosApi } from '../../api/productos.api';
+import { inventarioApi } from '../../api/productos.api';
 
 import Spinner from '../../components/ui/Spinner.jsx';
 import Badge from '../../components/ui/Badge.jsx';
@@ -29,6 +30,13 @@ export default function Productos() {
   const [stockMinimo, setStockMinimo] = useState(0);
   const [errorEdicion, setErrorEdicion] = useState(null);
 
+  const [entrada, setEntrada] = useState(null);
+  const [cantidadEntrada, setCantidadEntrada] = useState(1);
+  const [motivoEntrada, setMotivoEntrada] = useState('');
+  const [errorEntrada, setErrorEntrada] = useState(null);
+  const [okEntrada, setOkEntrada] = useState(null);
+  const [guardandoEntrada, setGuardandoEntrada] = useState(false);
+
   const esGerente = user?.rol === 'gerente';
 
   function abrirEdicion(p) {
@@ -36,6 +44,14 @@ export default function Productos() {
     setPrecio(p.precio_unitario);
     setStockMinimo(p.stock_minimo);
     setErrorEdicion(null);
+  }
+
+  function abrirEntrada(p) {
+    setEntrada(p);
+    setCantidadEntrada(1);
+    setMotivoEntrada('Compra al proveedor');
+    setErrorEntrada(null);
+    setOkEntrada(null);
   }
 
   async function guardar() {
@@ -49,6 +65,30 @@ export default function Productos() {
       recargar();
     } catch (e) {
       setErrorEdicion(e.response?.data?.error || 'Error al actualizar');
+    }
+  }
+
+  async function confirmarEntrada() {
+    setErrorEntrada(null);
+    const cantidad = parseInt(cantidadEntrada, 10);
+    if (!Number.isFinite(cantidad) || cantidad <= 0) {
+      setErrorEntrada('La cantidad debe ser un entero positivo');
+      return;
+    }
+    setGuardandoEntrada(true);
+    try {
+      await inventarioApi.registrarEntrada({
+        producto_id: entrada.id,
+        cantidad,
+        motivo: motivoEntrada || 'Entrada manual'
+      });
+      setOkEntrada(`+${cantidad} unidades agregadas a ${entrada.nombre}`);
+      recargar();
+      setTimeout(() => setEntrada(null), 900);
+    } catch (e) {
+      setErrorEntrada(e.response?.data?.error || 'Error al registrar la entrada');
+    } finally {
+      setGuardandoEntrada(false);
     }
   }
 
@@ -106,7 +146,15 @@ export default function Productos() {
                     <td className="text-right px-3 py-2">{p.stock_minimo}</td>
                     <td className="text-center px-3 py-2">{badgeStock(p)}</td>
                     {esGerente && (
-                      <td className="text-center px-3 py-2">
+                      <td className="text-center px-3 py-2 whitespace-nowrap">
+                        <button
+                          className="text-ok hover:underline text-sm font-medium"
+                          onClick={() => abrirEntrada(p)}
+                          title="Registrar entrada de stock (compra al proveedor)"
+                        >
+                          + Stock
+                        </button>
+                        <span className="text-gray-300 mx-2">|</span>
                         <button className="text-primary hover:underline text-sm" onClick={() => abrirEdicion(p)}>
                           Editar
                         </button>
@@ -119,6 +167,51 @@ export default function Productos() {
           </table>
         )}
       </div>
+
+      <Modal
+        open={!!entrada}
+        onClose={() => !guardandoEntrada && setEntrada(null)}
+        titulo={`Registrar entrada — ${entrada?.nombre || ''}`}
+      >
+        {entrada && (
+          <div className="space-y-3">
+            {errorEntrada && <Alert tipo="error">{errorEntrada}</Alert>}
+            {okEntrada && <Alert tipo="ok">{okEntrada}</Alert>}
+            <div className="text-sm text-gray-600">
+              Stock actual: <span className="font-bold text-primary">{entrada.stock_actual}</span>
+              {' '}
+              {entrada.unidad_medida || 'unidades'}
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Cantidad a agregar</label>
+              <input
+                type="number"
+                min="1"
+                className="input-field"
+                value={cantidadEntrada}
+                onChange={(e) => setCantidadEntrada(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Motivo / observación</label>
+              <input
+                type="text"
+                className="input-field"
+                value={motivoEntrada}
+                onChange={(e) => setMotivoEntrada(e.target.value)}
+                placeholder="Ej: Compra al proveedor Aserradero El Bosque"
+              />
+            </div>
+            <div className="text-xs text-gray-500">
+              Se registrará un movimiento de tipo <span className="font-semibold">entrada</span> en el inventario.
+            </div>
+            <Button onClick={confirmarEntrada} className="w-full" disabled={guardandoEntrada}>
+              {guardandoEntrada ? 'Registrando…' : `Confirmar entrada de ${cantidadEntrada} unidades`}
+            </Button>
+          </div>
+        )}
+      </Modal>
 
       <Modal open={!!editando} onClose={() => setEditando(null)} titulo={`Editar ${editando?.nombre || ''}`}>
         {editando && (

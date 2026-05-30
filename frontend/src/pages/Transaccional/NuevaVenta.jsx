@@ -12,6 +12,7 @@ import Button from '../../components/ui/Button.jsx';
 import Badge from '../../components/ui/Badge.jsx';
 import Alert from '../../components/ui/Alert.jsx';
 import Modal from '../../components/ui/Modal.jsx';
+import { abrirComprobanteImprimible } from '../../utils/comprobante';
 
 const IGV_RATE = 0.18;
 
@@ -665,6 +666,9 @@ export default function NuevaVenta() {
                 {exito.direccion_entrega && <div>Direccion: {exito.direccion_entrega}</div>}
               </div>
             )}
+            <Button variant="secondary" onClick={() => abrirComprobanteImprimible(exito)} className="w-full">
+              Descargar / Imprimir comprobante
+            </Button>
             <Button onClick={limpiarFormulario} className="w-full">Registrar otra venta</Button>
           </div>
         )}

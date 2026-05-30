@@ -22,6 +22,16 @@ function badgeStock(p) {
   return <Badge color="ok">OK</Badge>;
 }
 
+const NUEVO_PRODUCTO_INICIAL = {
+  nombre: '',
+  tipo_madera: 'eucalipto',
+  dimension: '',
+  unidad_medida: 'unidad',
+  precio_unitario: '',
+  stock_actual: 0,
+  stock_minimo: 5
+};
+
 export default function Productos() {
   const { user } = useAuth();
   const { productos, loading, error, filtros, setFiltros, recargar } = useProductos();
@@ -36,6 +46,11 @@ export default function Productos() {
   const [errorEntrada, setErrorEntrada] = useState(null);
   const [okEntrada, setOkEntrada] = useState(null);
   const [guardandoEntrada, setGuardandoEntrada] = useState(false);
+
+  const [creando, setCreando] = useState(false);
+  const [nuevoProd, setNuevoProd] = useState(NUEVO_PRODUCTO_INICIAL);
+  const [errorCreacion, setErrorCreacion] = useState(null);
+  const [guardandoNuevo, setGuardandoNuevo] = useState(false);
 
   const esGerente = user?.rol === 'gerente';
 
@@ -52,6 +67,12 @@ export default function Productos() {
     setMotivoEntrada('Compra al proveedor');
     setErrorEntrada(null);
     setOkEntrada(null);
+  }
+
+  function abrirCreacion() {
+    setNuevoProd(NUEVO_PRODUCTO_INICIAL);
+    setErrorCreacion(null);
+    setCreando(true);
   }
 
   async function guardar() {
@@ -92,6 +113,36 @@ export default function Productos() {
     }
   }
 
+  async function crearProducto() {
+    setErrorCreacion(null);
+    if (!nuevoProd.nombre.trim()) {
+      setErrorCreacion('El nombre es obligatorio');
+      return;
+    }
+    if (!nuevoProd.precio_unitario || parseFloat(nuevoProd.precio_unitario) <= 0) {
+      setErrorCreacion('El precio unitario debe ser mayor que 0');
+      return;
+    }
+    setGuardandoNuevo(true);
+    try {
+      await productosApi.crear({
+        nombre: nuevoProd.nombre.trim(),
+        tipo_madera: nuevoProd.tipo_madera,
+        dimension: nuevoProd.dimension.trim() || null,
+        unidad_medida: nuevoProd.unidad_medida.trim() || 'unidad',
+        precio_unitario: parseFloat(nuevoProd.precio_unitario),
+        stock_actual: parseInt(nuevoProd.stock_actual, 10) || 0,
+        stock_minimo: parseInt(nuevoProd.stock_minimo, 10) || 0
+      });
+      setCreando(false);
+      recargar();
+    } catch (e) {
+      setErrorCreacion(e.response?.data?.error || 'Error al crear el producto');
+    } finally {
+      setGuardandoNuevo(false);
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div className="card flex flex-wrap gap-3 items-end">
@@ -110,6 +161,11 @@ export default function Productos() {
           </select>
         </div>
         <Button variant="secondary" onClick={() => setFiltros({})}>Limpiar</Button>
+        {esGerente && (
+          <div className="ml-auto">
+            <Button onClick={abrirCreacion}>+ Nuevo producto</Button>
+          </div>
+        )}
       </div>
 
       {error && <Alert tipo="error">{error}</Alert>}
@@ -230,6 +286,70 @@ export default function Productos() {
             <Button onClick={guardar} className="w-full">Guardar cambios</Button>
           </div>
         )}
+      </Modal>
+
+      <Modal open={creando} onClose={() => setCreando(false)} titulo="Nuevo producto" size="lg">
+        <div className="space-y-3">
+          {errorCreacion && <Alert tipo="error">{errorCreacion}</Alert>}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium mb-1">Nombre *</label>
+              <input type="text" className="input-field"
+                value={nuevoProd.nombre}
+                onChange={(e) => setNuevoProd({ ...nuevoProd, nombre: e.target.value })}
+                placeholder="Ej: Vigas de Eucalipto 6 m" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Tipo de madera *</label>
+              <select className="input-field"
+                value={nuevoProd.tipo_madera}
+                onChange={(e) => setNuevoProd({ ...nuevoProd, tipo_madera: e.target.value })}>
+                <option value="eucalipto">Eucalipto</option>
+                <option value="varas">Varas</option>
+                <option value="vigas">Vigas</option>
+                <option value="parantes">Parantes</option>
+                <option value="listones">Listones</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Dimension</label>
+              <input type="text" className="input-field"
+                value={nuevoProd.dimension}
+                onChange={(e) => setNuevoProd({ ...nuevoProd, dimension: e.target.value })}
+                placeholder="Ej: 6 m / 2.4 m" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Unidad de medida</label>
+              <input type="text" className="input-field"
+                value={nuevoProd.unidad_medida}
+                onChange={(e) => setNuevoProd({ ...nuevoProd, unidad_medida: e.target.value })}
+                placeholder="unidad" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Precio unitario (S/.) *</label>
+              <input type="number" step="0.01" min="0" className="input-field"
+                value={nuevoProd.precio_unitario}
+                onChange={(e) => setNuevoProd({ ...nuevoProd, precio_unitario: e.target.value })} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Stock inicial</label>
+              <input type="number" min="0" className="input-field"
+                value={nuevoProd.stock_actual}
+                onChange={(e) => setNuevoProd({ ...nuevoProd, stock_actual: e.target.value })} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Stock minimo</label>
+              <input type="number" min="0" className="input-field"
+                value={nuevoProd.stock_minimo}
+                onChange={(e) => setNuevoProd({ ...nuevoProd, stock_minimo: e.target.value })} />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 pt-2 border-t">
+            <Button variant="secondary" onClick={() => setCreando(false)}>Cancelar</Button>
+            <Button onClick={crearProducto} loading={guardandoNuevo}>Crear producto</Button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

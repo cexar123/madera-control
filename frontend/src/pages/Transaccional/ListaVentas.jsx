@@ -11,6 +11,7 @@ import Badge from '../../components/ui/Badge.jsx';
 import Modal from '../../components/ui/Modal.jsx';
 import Button from '../../components/ui/Button.jsx';
 import Alert from '../../components/ui/Alert.jsx';
+import { abrirComprobanteImprimible } from '../../utils/comprobante';
 
 function formatSoles(v) { return `S/. ${Number(v || 0).toFixed(2)}`; }
 function formatFecha(f) { return f ? new Date(f).toLocaleString('es-PE') : '-'; }
@@ -206,13 +207,16 @@ export default function ListaVentas() {
               <div className="text-lg font-bold text-primary">TOTAL: {formatSoles(detalle.total)}</div>
             </div>
 
-            {detalle.estado === 'confirmada' && puedeAnular && (
-              <div className="pt-3 border-t flex justify-end">
+            <div className="pt-3 border-t flex justify-end gap-2">
+              <Button variant="secondary" onClick={() => abrirComprobanteImprimible(detalle)}>
+                Descargar / Imprimir comprobante
+              </Button>
+              {detalle.estado === 'confirmada' && puedeAnular && (
                 <Button variant="danger" onClick={() => setAnularModal(true)}>
                   Anular venta
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         )}
 

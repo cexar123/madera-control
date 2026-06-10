@@ -26,6 +26,7 @@ async function buscar(req, res, next) {
 async function crear(req, res, next) {
   try {
     const { razon_social, ruc, direccion, telefono } = req.body || {};
+    let { tipo_documento } = req.body || {};
 
     if (!razon_social || razon_social.trim().length === 0) {
       const err = new Error('La razon social es obligatoria');
@@ -33,8 +34,24 @@ async function crear(req, res, next) {
       return next(err);
     }
 
-    if (ruc && !/^\d{11}$/.test(ruc)) {
+    if (ruc && !tipo_documento) {
+      tipo_documento = String(ruc).length === 8 ? 'DNI' : 'RUC';
+    }
+
+    if (tipo_documento && !['RUC', 'DNI'].includes(tipo_documento)) {
+      const err = new Error('tipo_documento debe ser RUC o DNI');
+      err.status = 400;
+      return next(err);
+    }
+
+    if (ruc && tipo_documento === 'RUC' && !/^\d{11}$/.test(ruc)) {
       const err = new Error('El RUC debe tener exactamente 11 digitos');
+      err.status = 400;
+      return next(err);
+    }
+
+    if (ruc && tipo_documento === 'DNI' && !/^\d{8}$/.test(ruc)) {
+      const err = new Error('El DNI debe tener exactamente 8 digitos');
       err.status = 400;
       return next(err);
     }
@@ -42,14 +59,14 @@ async function crear(req, res, next) {
     if (ruc) {
       const ya = await clientesService.findByRuc(ruc);
       if (ya) {
-        const err = new Error('Ya existe un cliente con ese RUC');
+        const err = new Error(`Ya existe un cliente con ese ${tipo_documento || 'documento'}`);
         err.status = 409;
         err.details = { cliente: ya };
         return next(err);
       }
     }
 
-    const nuevo = await clientesService.createCliente({ razon_social, ruc, direccion, telefono });
+    const nuevo = await clientesService.createCliente({ razon_social, ruc, tipo_documento, direccion, telefono });
     return res.status(201).json(nuevo);
   } catch (e) { return next(e); }
 }
@@ -88,4 +105,38 @@ async function consultarRuc(req, res, next) {
   } catch (e) { return next(e); }
 }
 
-module.exports = { listar, buscar, crear, consultarRuc };
+async function consultarDni(req, res, next) {
+  try {
+    const dni = (req.query.dni || '').toString().trim();
+
+    if (!dni) {
+      const err = new Error('Debe ingresar un DNI');
+      err.status = 400;
+      return next(err);
+    }
+
+    if (!/^\d{8}$/.test(dni)) {
+      const err = new Error('El DNI debe tener 8 digitos');
+      err.status = 400;
+      return next(err);
+    }
+
+    const resultado = await clientesService.consultarDniReniec(dni);
+
+    if (resultado === null) {
+      const err = new Error('DNI no encontrado en RENIEC');
+      err.status = 404;
+      return next(err);
+    }
+
+    if (resultado && resultado.error === 'conexion') {
+      const err = new Error('No se pudo conectar con RENIEC, ingrese el cliente manualmente');
+      err.status = 503;
+      return next(err);
+    }
+
+    return res.json(resultado);
+  } catch (e) { return next(e); }
+}
+
+module.exports = { listar, buscar, crear, consultarRuc, consultarDni };

@@ -4,7 +4,7 @@ const { query } = require('../config/db');
 
 async function getAllClientes() {
   const sql = `
-    SELECT id, ruc, razon_social, direccion, telefono, created_at
+    SELECT id, ruc, tipo_documento, razon_social, direccion, telefono, created_at
     FROM clientes
     ORDER BY razon_social ASC
   `;
@@ -27,7 +27,7 @@ async function findByRuc(ruc) {
 
 async function buscar(termino) {
   const sql = `
-    SELECT id, ruc, razon_social, direccion, telefono, created_at
+    SELECT id, ruc, tipo_documento, razon_social, direccion, telefono, created_at
     FROM clientes
     WHERE ruc ILIKE $1 OR razon_social ILIKE $1
     ORDER BY razon_social ASC
@@ -37,14 +37,20 @@ async function buscar(termino) {
   return result.rows;
 }
 
+function inferirTipoDocumento(numero) {
+  if (!numero) return null;
+  return String(numero).length === 8 ? 'DNI' : 'RUC';
+}
+
 async function createCliente(datos) {
   const sql = `
-    INSERT INTO clientes (ruc, razon_social, direccion, telefono)
-    VALUES ($1, $2, $3, $4)
+    INSERT INTO clientes (ruc, tipo_documento, razon_social, direccion, telefono)
+    VALUES ($1, $2, $3, $4, $5)
     RETURNING *
   `;
   const result = await query(sql, [
     datos.ruc || null,
+    datos.tipo_documento || inferirTipoDocumento(datos.ruc),
     datos.razon_social,
     datos.direccion || null,
     datos.telefono || null
@@ -59,6 +65,7 @@ async function findOrCreate(ruc, razon_social, extras = {}) {
   }
   return createCliente({
     ruc,
+    tipo_documento: extras.tipo_documento || inferirTipoDocumento(ruc),
     razon_social: razon_social || 'Cliente sin razon social',
     direccion: extras.direccion,
     telefono: extras.telefono
@@ -111,6 +118,55 @@ async function consultarRucSunat(ruc) {
   };
 }
 
+async function consultarDniReniec(dni) {
+  if (!/^\d{8}$/.test(String(dni || ''))) {
+    return { error: 'invalido' };
+  }
+
+  const baseUrl = process.env.RENIEC_API_URL || 'https://api.apis.net.pe/v2/reniec/dni';
+  const url = `${baseUrl}?numero=${dni}`;
+  const headers = { Accept: 'application/json' };
+  if (process.env.SUNAT_API_TOKEN) {
+    headers.Authorization = `Bearer ${process.env.SUNAT_API_TOKEN}`;
+  }
+
+  let response;
+  try {
+    response = await fetch(url, { method: 'GET', headers });
+  } catch (e) {
+    return { error: 'conexion' };
+  }
+
+  if (response.status === 404 || response.status === 422) {
+    return null;
+  }
+  if (!response.ok) {
+    return { error: 'conexion' };
+  }
+
+  let data;
+  try {
+    data = await response.json();
+  } catch (e) {
+    return { error: 'conexion' };
+  }
+
+  const nombres = data?.nombres || data?.nombre || '';
+  const apellidos = [data?.apellidoPaterno || data?.apellido_paterno, data?.apellidoMaterno || data?.apellido_materno]
+    .filter(Boolean)
+    .join(' ');
+  const nombreCompleto = data?.nombreCompleto || data?.nombre_completo || `${nombres} ${apellidos}`.trim();
+
+  if (!nombreCompleto) {
+    return null;
+  }
+
+  return {
+    dni: data.numeroDocumento || data.numero_documento || dni,
+    nombreCompleto
+  };
+}
+
 module.exports = {
   getAllClientes,
   findById,
@@ -118,5 +174,6 @@ module.exports = {
   buscar,
   createCliente,
   findOrCreate,
-  consultarRucSunat
+  consultarRucSunat,
+  consultarDniReniec
 };

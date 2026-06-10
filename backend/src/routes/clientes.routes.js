@@ -11,6 +11,7 @@ router.use(verifyToken);
 
 // Rutas estaticas primero para que Express no las confunda con /:id
 router.get('/consultar-ruc', clientesController.consultarRuc);
+router.get('/consultar-dni', clientesController.consultarDni);
 router.get('/buscar', clientesController.buscar);
 
 router.get('/', clientesController.listar);

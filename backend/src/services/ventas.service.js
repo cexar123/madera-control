@@ -100,6 +100,30 @@ async function registrarVenta(datos, usuario_id) {
   try {
     await client.query('BEGIN');
 
+    // Validar documento del cliente segun tipo de comprobante:
+    // factura -> RUC obligatorio; boleta -> basta DNI (o RUC)
+    const clienteRes = await client.query(
+      `SELECT id, ruc, tipo_documento FROM clientes WHERE id = $1 LIMIT 1`,
+      [cliente_id]
+    );
+    const clienteVenta = clienteRes.rows[0];
+    if (!clienteVenta) {
+      throw Object.assign(new Error('Cliente no encontrado'), { status: 404 });
+    }
+    if (tipo_comprobante === 'factura' &&
+        (clienteVenta.tipo_documento !== 'RUC' || !clienteVenta.ruc)) {
+      throw Object.assign(
+        new Error('Para emitir una factura el cliente debe tener RUC (11 digitos)'),
+        { status: 400 }
+      );
+    }
+    if (tipo_comprobante === 'boleta' && !clienteVenta.ruc) {
+      throw Object.assign(
+        new Error('Para emitir una boleta el cliente debe tener DNI (8 digitos)'),
+        { status: 400 }
+      );
+    }
+
     const descuentos = await obtenerDescuentosActivos(client);
 
     // Paso 1: validar stock, calcular descuentos por linea
@@ -345,7 +369,8 @@ async function listarVentas(filtros = {}) {
       v.forma_pago, v.estado, v.motivo_anulacion,
       v.tipo_entrega, v.fecha_recojo, v.estado_entrega,
       v.created_at,
-      c.id AS cliente_id, c.ruc AS cliente_ruc, c.razon_social AS cliente_razon_social,
+      c.id AS cliente_id, c.ruc AS cliente_ruc, c.tipo_documento AS cliente_tipo_documento,
+      c.razon_social AS cliente_razon_social,
       u.id AS usuario_id, u.nombre AS usuario_nombre, u.rol AS usuario_rol
     FROM ventas v
     LEFT JOIN clientes c ON v.cliente_id = c.id
@@ -382,6 +407,7 @@ async function listarRecojosPendientes(filtros = {}) {
       v.contacto_entrega, v.estado_entrega, v.observaciones_entrega,
       v.created_at,
       c.razon_social AS cliente_razon_social, c.ruc AS cliente_ruc,
+      c.tipo_documento AS cliente_tipo_documento,
       c.telefono AS cliente_telefono
     FROM ventas v
     LEFT JOIN clientes c ON v.cliente_id = c.id
@@ -395,7 +421,8 @@ async function listarRecojosPendientes(filtros = {}) {
 async function obtenerDetalle(venta_id) {
   const ventaRes = await query(
     `SELECT v.*,
-            c.ruc AS cliente_ruc, c.razon_social AS cliente_razon_social,
+            c.ruc AS cliente_ruc, c.tipo_documento AS cliente_tipo_documento,
+            c.razon_social AS cliente_razon_social,
             c.direccion AS cliente_direccion, c.telefono AS cliente_telefono,
             u.nombre AS usuario_nombre, u.rol AS usuario_rol,
             ua.nombre AS anulada_por_nombre

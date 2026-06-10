@@ -97,7 +97,7 @@ export function abrirComprobanteImprimible(venta) {
 
   <div class="info-cliente">
     <div><b>Cliente:</b> ${escapar(venta.cliente_razon_social || 'Sin cliente')}</div>
-    <div><b>RUC / DNI:</b> ${escapar(venta.cliente_ruc || '-')}</div>
+    <div><b>${escapar(venta.cliente_tipo_documento || 'RUC / DNI')}:</b> ${escapar(venta.cliente_ruc || '-')}</div>
     <div><b>Vendedor:</b> ${escapar(venta.usuario_nombre || '-')}</div>
     <div><b>Forma de pago:</b> ${escapar(venta.forma_pago || '-')}</div>
     <div><b>Tipo de entrega:</b> ${escapar((venta.tipo_entrega || '-').replace(/_/g, ' '))}</div>

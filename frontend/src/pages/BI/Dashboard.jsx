@@ -1,6 +1,7 @@
 // MaderaControl v2.0 - Dashboard BI con KPIs, graficos y top productos
+// Se refresca solo cada REFRESCO_MS para reflejar las ventas nuevas sin recargar la pagina.
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend,
   PieChart, Pie, Cell
@@ -12,6 +13,7 @@ import Spinner from '../../components/ui/Spinner.jsx';
 import Alert from '../../components/ui/Alert.jsx';
 
 const COLORS = ['#1e3a5f', '#f97316', '#16a34a', '#dc2626', '#a855f7', '#0ea5e9', '#facc15'];
+const REFRESCO_MS = 30000;
 const formatSoles = (v) => `S/. ${Number(v || 0).toFixed(2)}`;
 
 function KPI({ titulo, valor, sub, color = 'text-primary' }) {
@@ -33,10 +35,11 @@ export default function Dashboard() {
   const [topProductos, setTopProductos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [ultimaActualizacion, setUltimaActualizacion] = useState(null);
 
-  useEffect(() => {
-    setLoading(true);
-    Promise.all([
+  const cargarDatos = useCallback((mostrarSpinner) => {
+    if (mostrarSpinner) setLoading(true);
+    return Promise.all([
       reportesApi.getResumenDashboard(),
       reportesApi.getVentasPorTipoMadera(),
       reportesApi.getVentasPorFormaPago(),
@@ -46,14 +49,27 @@ export default function Dashboard() {
       setTipoMadera(t);
       setFormaPago(fp);
       setTopProductos(top);
+      setError(null);
+      setUltimaActualizacion(new Date());
     }).catch(e => setError(e.response?.data?.error || e.message))
-      .finally(() => setLoading(false));
+      .finally(() => { if (mostrarSpinner) setLoading(false); });
   }, []);
 
   useEffect(() => {
-    reportesApi.getVentasPorPeriodo(periodo)
-      .then(r => setVentasPeriodo(r.datos || []))
-      .catch(() => setVentasPeriodo([]));
+    cargarDatos(true);
+    // Refresco automatico: el dashboard refleja las ventas nuevas sin recargar
+    const timer = setInterval(() => cargarDatos(false), REFRESCO_MS);
+    return () => clearInterval(timer);
+  }, [cargarDatos]);
+
+  useEffect(() => {
+    const cargarPeriodo = () =>
+      reportesApi.getVentasPorPeriodo(periodo)
+        .then(r => setVentasPeriodo(r.datos || []))
+        .catch(() => setVentasPeriodo([]));
+    cargarPeriodo();
+    const timer = setInterval(cargarPeriodo, REFRESCO_MS);
+    return () => clearInterval(timer);
   }, [periodo]);
 
   if (loading) return <Spinner />;
@@ -61,6 +77,12 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
+      {ultimaActualizacion && (
+        <div className="text-xs text-gray-500 text-right">
+          Actualizacion automatica cada {REFRESCO_MS / 1000} s — ultima: {ultimaActualizacion.toLocaleTimeString('es-PE')}
+        </div>
+      )}
+
       {/* Fila superior: 5 KPI */}
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <KPI titulo="Ventas hoy"

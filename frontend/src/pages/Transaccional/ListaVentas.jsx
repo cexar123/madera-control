@@ -12,6 +12,7 @@ import Modal from '../../components/ui/Modal.jsx';
 import Button from '../../components/ui/Button.jsx';
 import Alert from '../../components/ui/Alert.jsx';
 import { abrirComprobanteImprimible } from '../../utils/comprobante';
+import { exportarVentasExcel, exportarVentasPDF } from '../../utils/exportarReporte';
 
 function formatSoles(v) { return `S/. ${Number(v || 0).toFixed(2)}`; }
 function formatFecha(f) { return f ? new Date(f).toLocaleString('es-PE') : '-'; }
@@ -101,6 +102,16 @@ export default function ListaVentas() {
           </select>
           <Button variant="secondary" onClick={() => setFiltros({})}>Limpiar</Button>
         </div>
+        <div className="flex flex-wrap gap-2 mt-3 justify-end">
+          <Button variant="secondary" disabled={loading || ventas.length === 0}
+            onClick={() => exportarVentasPDF(ventas, filtros)}>
+            Exportar PDF
+          </Button>
+          <Button variant="secondary" disabled={loading || ventas.length === 0}
+            onClick={() => exportarVentasExcel(ventas, filtros)}>
+            Exportar Excel
+          </Button>
+        </div>
       </div>
 
       {error && <Alert tipo="error">{error}</Alert>}
@@ -151,7 +162,7 @@ export default function ListaVentas() {
           <div className="space-y-3 text-sm">
             <div className="grid grid-cols-2 gap-3">
               <div><b>Cliente:</b> {detalle.cliente_razon_social || 's/cliente'}</div>
-              <div><b>RUC:</b> {detalle.cliente_ruc || '-'}</div>
+              <div><b>{detalle.cliente_tipo_documento || 'RUC'}:</b> {detalle.cliente_ruc || '-'}</div>
               <div><b>Vendedor:</b> {detalle.usuario_nombre}</div>
               <div><b>Forma de pago:</b> <span className="capitalize">{detalle.forma_pago}</span></div>
               <div><b>Fecha:</b> {formatFecha(detalle.created_at)}</div>

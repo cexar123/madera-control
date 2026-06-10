@@ -13,12 +13,13 @@ Aplicar en orden:
 | `migrations/001_crear_tablas.sql` | Crea las 6 tablas core con sus constraints e índices. |
 | `migrations/002_datos_iniciales.sql` | Inserta usuarios de prueba, 10 productos madereros, 3 clientes y 5 ventas de los últimos 30 días. |
 | `migrations/003_v2_funcionalidades.sql` | Agrega columnas y tabla v2 (anulación con motivo, programación de recojo, descuentos por volumen). Idempotente. |
+| `migrations/004_tipo_documento_clientes.sql` | Agrega `tipo_documento` (RUC/DNI) a clientes: factura exige RUC, boleta basta con DNI. Idempotente. |
 
 ## Tablas
 
 1. **usuarios** — gerente, vendedor y contador (passwords con bcrypt).
 2. **productos** — catálogo de madera con stock y precio.
-3. **clientes** — clientes con RUC peruano.
+3. **clientes** — clientes identificados con RUC (empresas, facturas) o DNI (personas, boletas).
 4. **ventas** — cabecera de cada venta (boleta / factura / nota_venta).
 5. **detalle_ventas** — líneas de cada venta.
 6. **movimientos_inventario** — bitácora de entradas y salidas.
@@ -30,7 +31,7 @@ Aplicar en orden:
 
 1. Entra al servicio PostgreSQL del proyecto.
 2. Pestaña **Data → Query** (o usa pgAdmin con `DATABASE_PUBLIC_URL`).
-3. Pega y ejecuta cada archivo en orden: 001, 002, 003.
+3. Pega y ejecuta cada archivo en orden: 001, 002, 003, 004.
 
 ### En local con psql
 
@@ -38,6 +39,7 @@ Aplicar en orden:
 psql -U postgres -d maderacontrol -f database/migrations/001_crear_tablas.sql
 psql -U postgres -d maderacontrol -f database/migrations/002_datos_iniciales.sql
 psql -U postgres -d maderacontrol -f database/migrations/003_v2_funcionalidades.sql
+psql -U postgres -d maderacontrol -f database/migrations/004_tipo_documento_clientes.sql
 ```
 
 ## Credenciales generadas
@@ -62,4 +64,4 @@ DROP TABLE IF EXISTS productos CASCADE;
 DROP TABLE IF EXISTS usuarios CASCADE;
 ```
 
-Luego vuelve a ejecutar 001, 002 y 003.
+Luego vuelve a ejecutar 001, 002, 003 y 004.

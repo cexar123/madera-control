@@ -38,7 +38,7 @@ export default function Clientes() {
         <input
           type="text"
           className="input-field"
-          placeholder="Buscar por RUC o razon social"
+          placeholder="Buscar por RUC, DNI o razon social"
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
         />
@@ -51,8 +51,8 @@ export default function Clientes() {
           <table className="w-full text-sm">
             <thead className="bg-gray-100">
               <tr>
-                <th className="text-left px-3 py-2">RUC</th>
-                <th className="text-left px-3 py-2">Razon Social</th>
+                <th className="text-left px-3 py-2">Documento</th>
+                <th className="text-left px-3 py-2">Razon Social / Nombre</th>
                 <th className="text-left px-3 py-2">Telefono</th>
                 <th className="text-left px-3 py-2">Direccion</th>
                 <th className="text-left px-3 py-2">Fecha registro</th>
@@ -61,7 +61,9 @@ export default function Clientes() {
             <tbody>
               {clientesFiltrados.map(c => (
                 <tr key={c.id} className="border-t hover:bg-gray-50">
-                  <td className="px-3 py-2 font-mono">{c.ruc || '-'}</td>
+                  <td className="px-3 py-2 font-mono">
+                    {c.ruc ? `${c.tipo_documento || 'RUC'} ${c.ruc}` : '-'}
+                  </td>
                   <td className="px-3 py-2 font-medium">{c.razon_social}</td>
                   <td className="px-3 py-2">{c.telefono || '-'}</td>
                   <td className="px-3 py-2 text-gray-600">{c.direccion || '-'}</td>

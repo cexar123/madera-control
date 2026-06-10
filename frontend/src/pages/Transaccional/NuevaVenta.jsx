@@ -34,13 +34,18 @@ export default function NuevaVenta() {
   const [carrito, setCarrito] = useState([]);
   const [preview, setPreview] = useState({ items: [], subtotal: 0, descuento_total: 0 });
 
-  const [rucBusqueda, setRucBusqueda] = useState('');
+  // Tipo de documento del cliente: DNI (boleta) o RUC (factura)
+  const [tipoDoc, setTipoDoc] = useState('DNI');
+  const [docBusqueda, setDocBusqueda] = useState('');
   const [cliente, setCliente] = useState(null);
-  const [consultandoSunat, setConsultandoSunat] = useState(false);
-  const [sunatResult, setSunatResult] = useState(null);
-  const [sunatError, setSunatError] = useState(null);
+  const [consultandoDoc, setConsultandoDoc] = useState(false);
+  const [docResult, setDocResult] = useState(null);
+  const [docError, setDocError] = useState(null);
   const [razonSocialManual, setRazonSocialManual] = useState('');
   const [confirmandoCliente, setConfirmandoCliente] = useState(false);
+
+  const largoDoc = tipoDoc === 'RUC' ? 11 : 8;
+  const entidadConsulta = tipoDoc === 'RUC' ? 'SUNAT' : 'RENIEC';
 
   const [tipoComprobante, setTipoComprobante] = useState('boleta');
   const [formaPago, setFormaPago] = useState('efectivo');
@@ -110,44 +115,75 @@ export default function NuevaVenta() {
     return m;
   }, [preview]);
 
-  // -------------------- Cliente (SUNAT) --------------------
-  async function buscarEnSunat() {
+  // -------------------- Cliente (SUNAT / RENIEC) --------------------
+  function cambiarTipoDoc(nuevoTipo) {
+    setTipoDoc(nuevoTipo);
+    setDocBusqueda('');
+    setDocResult(null);
+    setDocError(null);
+    setRazonSocialManual('');
+    setCliente(null);
+    // El documento determina el comprobante: DNI -> boleta, RUC -> factura
+    setTipoComprobante(nuevoTipo === 'RUC' ? 'factura' : 'boleta');
+  }
+
+  async function buscarDocumento() {
     setError(null);
-    setSunatResult(null);
-    setSunatError(null);
+    setDocResult(null);
+    setDocError(null);
     setRazonSocialManual('');
     setCliente(null);
 
-    if (!/^\d{11}$/.test(rucBusqueda)) {
-      setError('El RUC debe tener exactamente 11 digitos numericos');
+    const regex = tipoDoc === 'RUC' ? /^\d{11}$/ : /^\d{8}$/;
+    if (!regex.test(docBusqueda)) {
+      setError(`El ${tipoDoc} debe tener exactamente ${largoDoc} digitos numericos`);
       return;
     }
-    setConsultandoSunat(true);
+    setConsultandoDoc(true);
     try {
-      const data = await clientesApi.consultarRuc(rucBusqueda);
-      setSunatResult(data);
+      if (tipoDoc === 'RUC') {
+        const data = await clientesApi.consultarRuc(docBusqueda);
+        setDocResult({
+          tipo: 'RUC',
+          numero: data.ruc,
+          nombre: data.razonSocial,
+          direccion: data.direccion,
+          estado: data.estado,
+          condicion: data.condicion
+        });
+      } else {
+        const data = await clientesApi.consultarDni(docBusqueda);
+        setDocResult({
+          tipo: 'DNI',
+          numero: data.dni,
+          nombre: data.nombreCompleto
+        });
+      }
     } catch (e) {
       const status = e.response?.status;
-      if (status === 404) setSunatError('noEncontrado');
-      else if (status === 503) setSunatError('conexion');
-      else setError(e.response?.data?.error || 'Error al consultar SUNAT');
+      if (status === 404) setDocError('noEncontrado');
+      else if (status === 503) setDocError('conexion');
+      else setError(e.response?.data?.error || `Error al consultar ${entidadConsulta}`);
     } finally {
-      setConsultandoSunat(false);
+      setConsultandoDoc(false);
     }
   }
 
-  async function confirmarClienteSunat() {
-    if (!sunatResult) return;
+  async function confirmarClienteConsultado() {
+    if (!docResult) return;
     setError(null);
     setConfirmandoCliente(true);
     try {
       const c = await clientesApi.findOrCreate(
-        sunatResult.ruc,
-        sunatResult.razonSocial,
-        { direccion: sunatResult.direccion }
+        docResult.numero,
+        docResult.nombre,
+        { direccion: docResult.direccion, tipo_documento: docResult.tipo }
       );
       if (!c || !c.id) throw new Error('No se pudo guardar el cliente');
       setCliente(c);
+      if (c.tipo_documento === 'DNI' && tipoComprobante === 'factura') {
+        setTipoComprobante('boleta');
+      }
     } catch (e) {
       setError(e.response?.data?.error || e.message || 'Error al guardar el cliente');
     } finally {
@@ -157,13 +193,19 @@ export default function NuevaVenta() {
 
   async function confirmarClienteManual() {
     const nombre = (razonSocialManual || '').trim();
-    if (!nombre) { setError('Debe ingresar la razon social'); return; }
+    if (!nombre) {
+      setError(tipoDoc === 'RUC' ? 'Debe ingresar la razon social' : 'Debe ingresar el nombre del cliente');
+      return;
+    }
     setError(null);
     setConfirmandoCliente(true);
     try {
-      const c = await clientesApi.findOrCreate(rucBusqueda || null, nombre);
+      const c = await clientesApi.findOrCreate(docBusqueda || null, nombre, { tipo_documento: tipoDoc });
       if (!c || !c.id) throw new Error('No se pudo guardar el cliente');
       setCliente(c);
+      if (c.tipo_documento === 'DNI' && tipoComprobante === 'factura') {
+        setTipoComprobante('boleta');
+      }
     } catch (e) {
       setError(e.response?.data?.error || e.message || 'Error al guardar el cliente');
     } finally {
@@ -173,9 +215,9 @@ export default function NuevaVenta() {
 
   function reiniciarCliente() {
     setCliente(null);
-    setRucBusqueda('');
-    setSunatResult(null);
-    setSunatError(null);
+    setDocBusqueda('');
+    setDocResult(null);
+    setDocError(null);
     setRazonSocialManual('');
   }
 
@@ -228,9 +270,10 @@ export default function NuevaVenta() {
   function limpiarFormulario() {
     setCarrito([]);
     setCliente(null);
-    setRucBusqueda('');
-    setSunatResult(null);
-    setSunatError(null);
+    setTipoDoc('DNI');
+    setDocBusqueda('');
+    setDocResult(null);
+    setDocError(null);
     setRazonSocialManual('');
     setTipoComprobante('boleta');
     setFormaPago('efectivo');
@@ -246,6 +289,12 @@ export default function NuevaVenta() {
   // -------------------- Validacion + envio --------------------
   const validacion = useMemo(() => {
     if (!cliente) return { ok: false, motivo: 'Selecciona un cliente' };
+    if (tipoComprobante === 'factura' && cliente.tipo_documento !== 'RUC') {
+      return { ok: false, motivo: 'Para emitir una factura el cliente debe tener RUC' };
+    }
+    if (tipoComprobante === 'boleta' && !cliente.ruc) {
+      return { ok: false, motivo: 'Para emitir una boleta el cliente debe tener DNI' };
+    }
     if (carrito.length === 0) return { ok: false, motivo: 'Agrega al menos un producto' };
     if (tipoEntrega === 'recojo_programado' && !fechaRecojo) {
       return { ok: false, motivo: 'Indica la fecha de recojo' };
@@ -254,7 +303,7 @@ export default function NuevaVenta() {
       return { ok: false, motivo: 'Indica la direccion de entrega' };
     }
     return { ok: true };
-  }, [cliente, carrito, tipoEntrega, fechaRecojo, direccionEntrega]);
+  }, [cliente, carrito, tipoComprobante, tipoEntrega, fechaRecojo, direccionEntrega]);
 
   async function registrarVenta() {
     setError(null);
@@ -292,67 +341,87 @@ export default function NuevaVenta() {
         <h2 className="text-lg font-semibold text-primary mb-3">1. Cliente</h2>
         {!cliente && (
           <>
+            <div className="flex flex-wrap gap-3 mb-3">
+              {[
+                { val: 'DNI', label: 'DNI (Boleta)' },
+                { val: 'RUC', label: 'RUC (Factura)' }
+              ].map(opt => (
+                <label key={opt.val} className={`flex items-center gap-2 px-3 py-2 border rounded cursor-pointer ${
+                  tipoDoc === opt.val ? 'border-primary bg-blue-50' : 'border-gray-300'
+                }`}>
+                  <input
+                    type="radio"
+                    name="tipoDoc"
+                    value={opt.val}
+                    checked={tipoDoc === opt.val}
+                    onChange={(e) => cambiarTipoDoc(e.target.value)}
+                  />
+                  <span className="text-sm">{opt.label}</span>
+                </label>
+              ))}
+            </div>
+
             <div className="flex gap-2">
               <input
                 type="text"
                 inputMode="numeric"
-                value={rucBusqueda}
-                onChange={(e) => setRucBusqueda(e.target.value.replace(/\D/g, '').slice(0, 11))}
-                placeholder="Ingresa RUC del cliente (11 digitos)"
+                value={docBusqueda}
+                onChange={(e) => setDocBusqueda(e.target.value.replace(/\D/g, '').slice(0, largoDoc))}
+                placeholder={`Ingresa ${tipoDoc} del cliente (${largoDoc} digitos)`}
                 className="input-field flex-1"
-                disabled={consultandoSunat}
+                disabled={consultandoDoc}
               />
               <Button
-                onClick={buscarEnSunat}
-                loading={consultandoSunat}
-                disabled={consultandoSunat || rucBusqueda.length !== 11}
+                onClick={buscarDocumento}
+                loading={consultandoDoc}
+                disabled={consultandoDoc || docBusqueda.length !== largoDoc}
               >
-                {consultandoSunat ? 'Consultando SUNAT...' : 'Buscar en SUNAT'}
+                {consultandoDoc ? `Consultando ${entidadConsulta}...` : `Buscar en ${entidadConsulta}`}
               </Button>
             </div>
 
-            {sunatResult && (
+            {docResult && (
               <div className="mt-3 space-y-2">
                 <div className={`p-3 rounded border ${
-                  sunatResult.estado && sunatResult.estado !== 'ACTIVO'
+                  docResult.estado && docResult.estado !== 'ACTIVO'
                     ? 'bg-orange-50 border-orange-300'
                     : 'bg-green-50 border-green-300'
                 }`}>
-                  <div className="font-semibold text-lg">{sunatResult.razonSocial}</div>
-                  <div className="text-sm text-gray-700"><b>RUC:</b> {sunatResult.ruc}</div>
-                  {sunatResult.direccion && (
-                    <div className="text-sm text-gray-700"><b>Direccion:</b> {sunatResult.direccion}</div>
+                  <div className="font-semibold text-lg">{docResult.nombre}</div>
+                  <div className="text-sm text-gray-700"><b>{docResult.tipo}:</b> {docResult.numero}</div>
+                  {docResult.direccion && (
+                    <div className="text-sm text-gray-700"><b>Direccion:</b> {docResult.direccion}</div>
                   )}
-                  {sunatResult.estado && (
+                  {docResult.estado && (
                     <div className="text-sm text-gray-700 mt-1">
                       <b>Estado:</b>{' '}
-                      <Badge color={sunatResult.estado === 'ACTIVO' ? 'ok' : 'alerta'}>
-                        {sunatResult.estado}
+                      <Badge color={docResult.estado === 'ACTIVO' ? 'ok' : 'alerta'}>
+                        {docResult.estado}
                       </Badge>
-                      {sunatResult.condicion && (
-                        <span className="ml-2 text-xs text-gray-500">({sunatResult.condicion})</span>
+                      {docResult.condicion && (
+                        <span className="ml-2 text-xs text-gray-500">({docResult.condicion})</span>
                       )}
                     </div>
                   )}
                 </div>
-                {sunatResult.estado && sunatResult.estado !== 'ACTIVO' && (
+                {docResult.estado && docResult.estado !== 'ACTIVO' && (
                   <Alert tipo="advertencia">
                     Este RUC no esta activo en SUNAT. ¿Desea continuar?
                   </Alert>
                 )}
-                <Button onClick={confirmarClienteSunat} loading={confirmandoCliente}>
+                <Button onClick={confirmarClienteConsultado} loading={confirmandoCliente}>
                   Usar este cliente
                 </Button>
               </div>
             )}
 
-            {sunatError === 'noEncontrado' && (
+            {docError === 'noEncontrado' && (
               <div className="mt-3 space-y-2">
-                <Alert tipo="error">RUC no encontrado en SUNAT</Alert>
+                <Alert tipo="error">{tipoDoc} no encontrado en {entidadConsulta}</Alert>
                 <input
                   value={razonSocialManual}
                   onChange={(e) => setRazonSocialManual(e.target.value)}
-                  placeholder="Razon social del cliente"
+                  placeholder={tipoDoc === 'RUC' ? 'Razon social del cliente' : 'Nombre completo del cliente'}
                   className="input-field"
                 />
                 <Button onClick={confirmarClienteManual} loading={confirmandoCliente}>
@@ -361,15 +430,15 @@ export default function NuevaVenta() {
               </div>
             )}
 
-            {sunatError === 'conexion' && (
+            {docError === 'conexion' && (
               <div className="mt-3 space-y-2">
                 <Alert tipo="advertencia">
-                  No se pudo conectar con SUNAT. Ingrese el nombre del cliente manualmente.
+                  No se pudo conectar con {entidadConsulta}. Ingrese el nombre del cliente manualmente.
                 </Alert>
                 <input
                   value={razonSocialManual}
                   onChange={(e) => setRazonSocialManual(e.target.value)}
-                  placeholder="Razon social del cliente"
+                  placeholder={tipoDoc === 'RUC' ? 'Razon social del cliente' : 'Nombre completo del cliente'}
                   className="input-field"
                 />
                 <Button onClick={confirmarClienteManual} loading={confirmandoCliente}>
@@ -384,7 +453,9 @@ export default function NuevaVenta() {
           <div className="p-3 bg-blue-50 border border-blue-200 rounded flex items-start justify-between gap-3">
             <div>
               <div className="font-semibold">{cliente.razon_social}</div>
-              <div className="text-sm text-gray-600">RUC: {cliente.ruc || 's/RUC'}</div>
+              <div className="text-sm text-gray-600">
+                {cliente.tipo_documento || 'RUC'}: {cliente.ruc || 'sin documento'}
+              </div>
               {cliente.direccion && <div className="text-sm text-gray-600">{cliente.direccion}</div>}
               {cliente.telefono && <div className="text-sm text-gray-600">Tel: {cliente.telefono}</div>}
             </div>
@@ -614,10 +685,17 @@ export default function NuevaVenta() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de comprobante</label>
             <select value={tipoComprobante} onChange={(e) => setTipoComprobante(e.target.value)} className="input-field">
-              <option value="boleta">Boleta</option>
-              <option value="factura">Factura</option>
+              <option value="boleta">Boleta (con DNI)</option>
+              <option value="factura" disabled={!!cliente && cliente.tipo_documento !== 'RUC'}>
+                Factura (requiere RUC)
+              </option>
               <option value="nota_venta">Nota de Venta (sin IGV)</option>
             </select>
+            {cliente && cliente.tipo_documento !== 'RUC' && (
+              <p className="text-xs text-gray-500 mt-1">
+                Las facturas solo se emiten a clientes con RUC.
+              </p>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Forma de pago</label>

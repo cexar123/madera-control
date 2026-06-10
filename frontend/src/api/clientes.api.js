@@ -13,15 +13,18 @@ export const clientesApi = {
     api.post('/api/clientes', datos).then(r => r.data),
   consultarRuc: (ruc) =>
     api.get('/api/clientes/consultar-ruc', { params: { ruc } }).then(r => r.data),
-  findOrCreate: async (ruc, razonSocial, extras = {}) => {
-    if (ruc) {
-      const existentes = await clientesApi.buscarPorRuc(ruc);
+  consultarDni: (dni) =>
+    api.get('/api/clientes/consultar-dni', { params: { dni } }).then(r => r.data),
+  findOrCreate: async (numeroDocumento, razonSocial, extras = {}) => {
+    if (numeroDocumento) {
+      const existentes = await clientesApi.buscarPorRuc(numeroDocumento);
       if (Array.isArray(existentes) && existentes.length > 0) {
         return existentes[0];
       }
     }
     return clientesApi.crear({
-      ruc: ruc || null,
+      ruc: numeroDocumento || null,
+      tipo_documento: extras.tipo_documento || (numeroDocumento && String(numeroDocumento).length === 8 ? 'DNI' : 'RUC'),
       razon_social: razonSocial || 'Cliente sin razon social',
       direccion: extras.direccion,
       telefono: extras.telefono

@@ -126,8 +126,9 @@ async function consultarDniReniec(dni) {
   const baseUrl = process.env.RENIEC_API_URL || 'https://api.apis.net.pe/v2/reniec/dni';
   const url = `${baseUrl}?numero=${dni}`;
   const headers = { Accept: 'application/json' };
-  if (process.env.SUNAT_API_TOKEN) {
-    headers.Authorization = `Bearer ${process.env.SUNAT_API_TOKEN}`;
+  const token = process.env.RENIEC_API_TOKEN || process.env.SUNAT_API_TOKEN;
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
   }
 
   let response;
@@ -137,7 +138,8 @@ async function consultarDniReniec(dni) {
     return { error: 'conexion' };
   }
 
-  if (response.status === 404 || response.status === 422) {
+  // El numero ya fue validado, asi que un 400 significa DNI inexistente
+  if (response.status === 400 || response.status === 404 || response.status === 422) {
     return null;
   }
   if (!response.ok) {
@@ -151,18 +153,23 @@ async function consultarDniReniec(dni) {
     return { error: 'conexion' };
   }
 
-  const nombres = data?.nombres || data?.nombre || '';
-  const apellidos = [data?.apellidoPaterno || data?.apellido_paterno, data?.apellidoMaterno || data?.apellido_materno]
+  // Soporta apis.net.pe (nombres/apellidoPaterno) y decolecta (first_name/full_name)
+  const nombres = data?.nombres || data?.nombre || data?.first_name || '';
+  const apellidos = [
+    data?.apellidoPaterno || data?.apellido_paterno || data?.first_last_name,
+    data?.apellidoMaterno || data?.apellido_materno || data?.second_last_name
+  ]
     .filter(Boolean)
     .join(' ');
-  const nombreCompleto = data?.nombreCompleto || data?.nombre_completo || `${nombres} ${apellidos}`.trim();
+  const nombreCompleto = data?.nombreCompleto || data?.nombre_completo || data?.full_name
+    || `${nombres} ${apellidos}`.trim();
 
   if (!nombreCompleto) {
     return null;
   }
 
   return {
-    dni: data.numeroDocumento || data.numero_documento || dni,
+    dni: data.numeroDocumento || data.numero_documento || data.document_number || dni,
     nombreCompleto
   };
 }

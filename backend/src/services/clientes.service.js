@@ -135,7 +135,13 @@ async function consultarDniReniec(dni) {
   try {
     response = await fetch(url, { method: 'GET', headers });
   } catch (e) {
+    console.warn('[RENIEC] fallo de conexion:', e.message);
     return { error: 'conexion' };
+  }
+
+  if (!response.ok) {
+    const cuerpo = await response.text().catch(() => '');
+    console.warn(`[RENIEC] respuesta ${response.status} de ${baseUrl}: ${cuerpo.substring(0, 200)}`);
   }
 
   // El numero ya fue validado, asi que un 400 significa DNI inexistente
@@ -150,6 +156,7 @@ async function consultarDniReniec(dni) {
   try {
     data = await response.json();
   } catch (e) {
+    console.warn('[RENIEC] respuesta no es JSON valido');
     return { error: 'conexion' };
   }
 
@@ -165,6 +172,8 @@ async function consultarDniReniec(dni) {
     || `${nombres} ${apellidos}`.trim();
 
   if (!nombreCompleto) {
+    console.warn('[RENIEC] respuesta 200 pero sin campos de nombre reconocibles:',
+      JSON.stringify(data).substring(0, 200));
     return null;
   }
 

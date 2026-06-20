@@ -130,7 +130,6 @@ npm install
 npm run dev
 ```
 
-Login de prueba: `gerente@maderacontrol.com / admin123`.
 
 ## Equipo
 

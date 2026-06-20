@@ -4,7 +4,7 @@ Sistema web de gestión de ventas para **Inversiones y Transportes Cesar y Diana
 
 ## Arquitectura N-Tier
 
-El proyecto está organizado en **4 capas** + un microservicio independiente. La separación es estricta: cada capa solo conoce a la inmediatamente inferior. Detalle completo en [ARQUITECTURA.md](ARQUITECTURA.md).
+El proyecto está organizado en **4 capas** + un microservicio independiente. La separación es estricta: cada capa solo conoce a la inmediatamente inferior.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -50,11 +50,6 @@ El proyecto está organizado en **4 capas** + un microservicio independiente. La
 
 ```
 madera-control/
-├── ARQUITECTURA.md           Doc maestro de las 4 capas
-├── DESPLIEGUE.md             Checklist de deploy a Railway + Vercel
-├── NOMBRES.md                Nombres oficiales (env vars, servicios, tablas)
-├── SETUP_EXTERNO.md          Setup de cuentas externas
-│
 ├── backend/                  Capas 2 y 3
 │   └── src/
 │       ├── app.js
@@ -97,8 +92,6 @@ Sistema en aire en:
 - Frontend → https://madera-control.vercel.app
 - Backend → https://madera-control-production.up.railway.app
 - Microservicio IA → https://extraordinary-warmth-production-53ac.up.railway.app
-
-Guía paso a paso para reproducir el deploy en [DESPLIEGUE.md](DESPLIEGUE.md).
 
 ## Correr el proyecto localmente
 
